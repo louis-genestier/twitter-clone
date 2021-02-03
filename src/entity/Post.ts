@@ -1,5 +1,5 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn,
+  Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, ManyToMany,
 } from 'typeorm';
 import User from './User';
 
@@ -16,4 +16,7 @@ export default class Post {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @ManyToMany(() => User, (User) => User.likedPosts)
+  likedBy: User[];
 }

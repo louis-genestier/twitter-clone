@@ -7,7 +7,6 @@ import PostService from '../../services/post';
 import { IPostDTO } from '../../interfaces/postDTO';
 import isAuth from '../middlewares/isAuth';
 import getCurrentUser from '../middlewares/getCurrentUser';
-import User from '../../entity/User';
 
 export default (router: Router) => {
   router.use('/post', router);
@@ -37,6 +36,19 @@ export default (router: Router) => {
     try {
       const post: Post = await postService.findById(req.params.id);
       return res.json(post);
+    } catch (e) {
+      return next(e);
+    }
+  });
+
+  router.get('/like/:id', isAuth, getCurrentUser, async (req: Request, res: Response, next: NextFunction) => {
+    const postService = new PostService();
+
+    try {
+      const post: Post = await postService.findById(req.params.id);
+      const data: Post = await postService.likePost(res.locals.currentUser, post);
+
+      return res.json(data);
     } catch (e) {
       return next(e);
     }

@@ -38,4 +38,8 @@ export default class User {
 
     @OneToMany(() => Post, (Post) => Post.author)
     posts: Post[];
+
+    @ManyToMany(() => Post, (Post) => Post.likedBy)
+    @JoinTable()
+    likedPosts: Post[];
 }

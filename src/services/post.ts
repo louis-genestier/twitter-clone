@@ -20,7 +20,9 @@ export default class PostService {
   }
 
   public async findById(id: string): Promise<Post> {
-    const post: Post | undefined = await this.postRepository.findOne(id);
+    const post: Post | undefined = await this.postRepository.findOne(id, {
+      relations: ['likedBy'],
+    });
 
     if (!post) {
       throw new Error('No post found.');
@@ -29,7 +31,7 @@ export default class PostService {
     return post;
   }
 
-  public async getTimelinePosts(user: User): Promise<any> {
+  public async getTimelinePosts(user: User): Promise<Post[]> {
     const followedUsersId: number[] = user.following.map((f) => f.id);
 
     const posts: Post[] = await this.postRepository.createQueryBuilder('p')
@@ -39,5 +41,27 @@ export default class PostService {
       .getMany();
 
     return posts;
+  }
+
+  public async likePost(user: User, post: Post): Promise<Post> {
+    const isLiked = await this.isLiked(user, post);
+
+    if (isLiked) {
+      post.likedBy = post.likedBy.filter((u) => u.id !== user.id);
+    } else {
+      post.likedBy.unshift(user);
+    }
+
+    await this.postRepository.save(post);
+    return post;
+  }
+
+  private async isLiked(user: User, post: Post): Promise<boolean> {
+    const isLiked = await this.postRepository.createQueryBuilder('p')
+      .leftJoinAndSelect('p.likedBy', 'u')
+      .where('u.id = :userId', { userId: user.id })
+      .andWhere('p.id = :postId', { postId: post.id })
+      .getCount();
+    return Boolean(isLiked);
   }
 }
