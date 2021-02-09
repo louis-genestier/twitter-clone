@@ -21,7 +21,7 @@ export default class PostService {
 
   public async findById(id: string): Promise<Post> {
     const post: Post | undefined = await this.postRepository.findOne(id, {
-      relations: ['likedBy'],
+      relations: ['likedBy', 'author'],
     });
 
     if (!post) {
