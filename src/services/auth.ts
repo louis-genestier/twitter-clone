@@ -3,6 +3,7 @@ import { getRepository, Repository } from 'typeorm';
 import { IUserInputDTO } from '../interfaces/userInputDTO';
 import User from '../entity/User';
 import { signJWT } from '../helpers/jwt';
+import ErrorWithHttpStatus from '../helpers/errorWithHttpStatus';
 
 export default class AuthService {
   private userRepository: Repository<User>;
@@ -33,13 +34,13 @@ export default class AuthService {
     });
 
     if (!user) {
-      throw new Error('No user found with that username.');
+      throw new ErrorWithHttpStatus('No user found with that username.', 403);
     }
 
     const isValidPassword: boolean = await compare(userInputDTO.password, user.password);
 
     if (!isValidPassword) {
-      throw new Error('Password is not correct.');
+      throw new ErrorWithHttpStatus('Password is not correct.', 403);
     }
 
     const token: string = signJWT(user);

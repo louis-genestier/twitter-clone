@@ -1,5 +1,6 @@
 import { getRepository, Repository } from 'typeorm';
 import User from '../entity/User';
+import ErrorWithHttpStatus from '../helpers/errorWithHttpStatus';
 
 export default class UserService {
   private userRepository: Repository<User>;
@@ -16,11 +17,11 @@ export default class UserService {
     });
 
     if (!userToFollow) {
-      throw new Error('There is no user with this id.');
+      throw new ErrorWithHttpStatus('There is no user with this id.', 403);
     }
 
     if (currentUser.id === userToFollow.id) {
-      throw new Error('You cannnot follow yourself.');
+      throw new ErrorWithHttpStatus('You cannnot follow yourself.', 400);
     }
 
     const isFollowing: boolean = await this.isFollowing(currentUser, userToFollow);

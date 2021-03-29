@@ -2,6 +2,7 @@ import { getRepository, Repository } from 'typeorm';
 import Post from '../entity/Post';
 import User from '../entity/User';
 import { IPostDTO } from '../interfaces/postDTO';
+import ErrorWithHttpStatus from '../helpers/errorWithHttpStatus';
 
 export default class PostService {
   private postRepository: Repository<Post>;
@@ -25,7 +26,7 @@ export default class PostService {
     });
 
     if (!post) {
-      throw new Error('No post found.');
+      throw new ErrorWithHttpStatus('No post found.', 404);
     }
 
     return post;
